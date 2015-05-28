@@ -18,6 +18,14 @@ Function Remove-CMFolderPackages {
 param($foldername,$siteCode='F0X')
 
 begin{
+    $CMDrive = "$((Get-PSDrive -PSProvider CMSite).Name):\"
+    if (-not(test-path $CMDrive)){
+        Write-Warning "No connection to $CMDrive SCCM Site found, import ConfigurationManager module and try again"
+        BREAK
+    }
+    else{
+        Write-host "Connection to $CMDrive : [OK]"
+    }
     try {$Folder = Get-CimInstance -Namespace root\sms\site_$siteCode -ClassName SMS_ObjectContainerNode -ea STOP| ? Name -like $foldername | ? ObjectTypeName -eq SMS_Package}
     catch {Write-Warning "Check the site code, Query error when looking at root\sms\site_$siteCode" }
     Write-Verbose "Found $($($Folder | measure).Count) items"
